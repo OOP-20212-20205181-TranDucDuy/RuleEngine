@@ -1,0 +1,129 @@
+services:
+  # api-gateway:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/api-gateway/Dockerfile
+  #     target: development
+  #   command: npm run start:dev api-gateway
+  #   env_file:
+  #     - ./apps/api-gateway/.env
+  #   depends_on:
+  #     - redis
+  #     - kafka
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   ports:
+  #     - '3000:3000'
+  # mail:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/mail/Dockerfile
+  #     target: development
+  #   command: npm run start:dev mail
+  #   env_file:
+  #     - ./apps/mail/.env
+  #   depends_on:
+  #     - redis
+  #     - kafka
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   ports:
+  #     - '3003:3003'
+  # rule:
+  #   build:
+  #     context: .
+  #     dockerfile: ./apps/rule/Dockerfile
+  #     target: development
+  #   command: npm run start:dev rule
+  #   env_file:
+  #     - ./apps/rule/.env
+  #   depends_on:
+  #     - redis
+  #     - kafka
+  #   ports:
+  #     - "3001:3001"
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    ports:
+      - "8080:8080"
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - redis-net
+
+  mongodb-rule:
+    image: mongo:6.0
+    container_name: mongodb-rule
+    ports:
+      - "27018:27018"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1
+      MONGO_INITDB_DATABASE: rule
+    volumes:
+      - mongodb_rule_data:/data/db
+      - mongodb_rule_config:/data/configdb
+  mongodb-mail:
+    image: mongo:6.0
+    container_name: mongodb-mail
+    ports:
+      - "27019:27019"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1
+      MONGO_INITDB_DATABASE: mail
+    volumes:
+      - mongodb_mail_data:/data/db
+      - mongodb_mail_config:/data/configdb
+      
+volumes:
+  redis-data:
+    driver: local
+  mongodb_rule_data:
+    driver: local
+  mongodb_rule_config:
+    driver: local 
+  mongodb_mail_data:
+    driver: local
+  mongodb_mail_config:
+    driver: local
+
+networks:
+  redis-net:
+    driver: bridge

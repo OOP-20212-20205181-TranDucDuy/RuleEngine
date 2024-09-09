@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api-gateway/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api-gateway",
+  "projects": {
+    "mail": {
+      "type": "application",
+      "root": "apps/mail",
+      "entryFile": "main",
+      "sourceRoot": "apps/mail/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mail/tsconfig.app.json"
+      }
+    },
+    "rule": {
+      "type": "application",
+      "root": "apps/rule",
+      "entryFile": "main",
+      "sourceRoot": "apps/rule/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/rule/tsconfig.app.json"
+      }
+    },
+    "rule-engine": {
+      "type": "library",
+      "root": "libs/rule-engine",
+      "entryFile": "index",
+      "sourceRoot": "libs/rule-engine/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rule-engine/tsconfig.lib.json"
+      }
+    },
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    }
+  }
+}
